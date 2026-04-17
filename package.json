@@ -4,6 +4,7 @@
   "description": "A calendar plugin for Obsidian that displays notes for selected dates",
   "main": "main.js",
   "scripts": {
+    "build": "npm run production",
     "dev": "esbuild main.ts --bundle --format=cjs --external:obsidian --external:@codemirror/autocomplete --outfile=main.js --sourcemap --watch",
     "esbuild": "esbuild main.ts --bundle --format=cjs --external:obsidian --external:@codemirror/autocomplete --outfile=main.js",
     "production": "esbuild main.ts --bundle --format=cjs --external:obsidian --external:@codemirror/autocomplete --outfile=main.js --minify"
