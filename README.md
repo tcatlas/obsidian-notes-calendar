@@ -19,69 +19,29 @@ An Obsidian plugin for displaying a calendar in the side pane and notes associat
 ## Installation
 Open the Community Plugins tab in the settings and search for "Calendar Notes" (or [click here](https://obsidian.md/plugins?id=calendar-notes)).
 
-## Development Setup
+<details>
+  <summary>Manual installation</summary>
 
-1. Clone this repository.
-2. Install dependencies:
+  ## Installing in a Vault
 
-```bash
-npm install
-```
+	For a manual local install, make sure these files exist inside your plugin folder in the vault:
+	
+	- `manifest.json`
+	- `main.js`
+	- `styles.css`
+	
+	Example layout:
+	
+	```text
+	<your-vault>/.obsidian/plugins/notes-calendar/
+		manifest.json
+		main.js
+		styles.css
+	```
+	
+	After copying the files, reload Obsidian or disable and re-enable the plugin.
+</details>
 
-3. Build in watch mode during development:
-
-```bash
-npm run dev
-```
-
-4. Copy or symlink this plugin folder into your vault at:
-
-```text
-<your-vault>/.obsidian/plugins/notes-calendar/
-```
-
-5. In Obsidian, open `Settings -> Community plugins`, enable community plugins if needed, then enable `Notes Calendar`.
-
-## Build Commands
-
-Development watch build:
-
-```bash
-npm run dev
-```
-
-Single build:
-
-```bash
-npm run esbuild
-```
-
-Production build:
-
-```bash
-npm run production
-```
-
-The build outputs `main.js`, which Obsidian loads together with `manifest.json` and `styles.css`.
-
-## Installing in a Vault
-
-For a manual local install, make sure these files exist inside your plugin folder in the vault:
-
-- `manifest.json`
-- `main.js`
-- `styles.css`
-
-Example layout:
-
-```text
-<your-vault>/.obsidian/plugins/notes-calendar/
-	manifest.json
-	main.js
-	styles.css
-```
-
-After copying the files, reload Obsidian or disable and re-enable the plugin.
 
 ## Notes
 
