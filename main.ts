@@ -14,7 +14,7 @@ import {
 export default class CalendarPlugin extends Plugin {
 	settings: CalendarPluginSettings;
 
-	async onload() {
+	async onload(): Promise<void> {
 		console.log('Loading Obsidian Calendar Plugin');
 
 		await this.loadSettings();
@@ -48,12 +48,12 @@ export default class CalendarPlugin extends Plugin {
 		});
 	}
 
-	onunload() {
+	onunload(): void {
 		console.log('Unloading Obsidian Calendar Plugin');
 		this.app.workspace.detachLeavesOfType(VIEW_TYPE_CALENDAR);
 	}
 
-	async loadSettings() {
+	async loadSettings(): Promise<void> {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 		this.settings.timeIsoDisplay = normalizeTimeDisplayFormat(this.settings.timeIsoDisplay ?? '');
 		this.settings.excerptLines = normalizeExcerptLines(this.settings.excerptLines ?? DEFAULT_SETTINGS.excerptLines);
@@ -62,11 +62,11 @@ export default class CalendarPlugin extends Plugin {
 		this.settings.weekNumberDisplay = normalizeWeekNumberDisplay(this.settings.weekNumberDisplay ?? '');
 	}
 
-	async saveSettings() {
+	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
 	}
 
-	refreshCalendarView() {
+	refreshCalendarView(): void {
 		this.app.workspace.getLeavesOfType(VIEW_TYPE_CALENDAR).forEach(leaf => {
 			if (leaf.view instanceof CalendarView) {
 				leaf.view.refresh();
@@ -74,7 +74,7 @@ export default class CalendarPlugin extends Plugin {
 		});
 	}
 
-	async activateView() {
+	async activateView(): Promise<void> {
 		try {
 			const { workspace } = this.app;
 

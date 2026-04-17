@@ -23,6 +23,12 @@ npm run dev
 
 ## Build Commands
 
+Lint the TypeScript source:
+
+```bash
+npm run lint
+```
+
 Development watch build:
 
 ```bash

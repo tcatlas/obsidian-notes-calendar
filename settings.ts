@@ -201,7 +201,7 @@ export class CalendarSettingTab extends PluginSettingTab {
 		excerptSection.style.paddingLeft = '12px';
 		excerptSection.style.borderLeft = '1px solid var(--background-modifier-border)';
 
-		const excerptLinesSetting = new Setting(excerptSection)
+		new Setting(excerptSection)
 			.setName('Excerpt lines')
 			.setDesc('Specify the maximum number of lines to show in note excerpts.')
 			.addDropdown(dropdown => dropdown

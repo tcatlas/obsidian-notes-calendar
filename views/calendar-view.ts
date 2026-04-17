@@ -26,19 +26,19 @@ export class CalendarView extends ItemView {
 		this.yearSelectorCenter = this.currentDate.getFullYear();
 	}
 
-	getViewType() {
+	getViewType(): string {
 		return VIEW_TYPE_CALENDAR;
 	}
 
-	getDisplayText() {
+	getDisplayText(): string {
 		return 'Calendar';
 	}
 
-	getIcon() {
+	getIcon(): string {
 		return 'calendar-1';
 	}
 
-	async onOpen() {
+	async onOpen(): Promise<void> {
 		this.createCalendarView();
 		// registerEvent automatically detaches listeners when the view is closed
 		this.registerEvent(this.app.vault.on('create', () => this.refresh()));
@@ -53,19 +53,19 @@ export class CalendarView extends ItemView {
 		});
 	}
 
-	async onClose() {
+	async onClose(): Promise<void> {
 		// Nothing to clean up — registerEvent handles detaching listeners
 	}
 
 	// Called by the plugin when settings change
-	public refresh() {
+	public refresh(): void {
 		this.renderHeader();
 		this.renderCalendar();
 		this.updateNotesList();
 		this.renderHeaderSelector();
 	}
 
-	private createCalendarView() {
+	private createCalendarView(): void {
 		// Use contentEl per Obsidian docs: https://docs.obsidian.md/Plugins/User+interface/Views
 		const container = this.contentEl;
 		container.empty();
@@ -451,7 +451,7 @@ export class CalendarView extends ItemView {
 					const text = content
 						.replace(/^---[\s\S]*?---\n?/, '')  // strip frontmatter
 						.replace(/#+\s+.*/g, '')             // strip headings
-						.replace(/[*_`\[\]]/g, '')           // strip markdown symbols
+						.replace(/[[\]*_`]/g, '')             // strip markdown symbols
 						.replace(/\s+/g, ' ')
 						.trim();
 					excerptEl.setText(text || '—');
