@@ -92,7 +92,7 @@ export default class CalendarPlugin extends Plugin {
 
 			// Reveal the leaf
 			if (leaf) {
-				workspace.revealLeaf(leaf);
+				await workspace.revealLeaf(leaf);
 			}
 		} catch (error) {
 			console.error('Failed to activate calendar view:', error);

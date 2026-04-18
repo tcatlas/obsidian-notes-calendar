@@ -40,7 +40,7 @@ export class CalendarView extends ItemView {
 		return 'calendar-1';
 	}
 
-	async onOpen(): Promise<void> {
+	onOpen(): Promise<void> {
 		this.createCalendarView();
 		// registerEvent automatically detaches listeners when the view is closed
 		this.registerEvent(this.app.vault.on('create', () => this.refresh()));
@@ -56,10 +56,12 @@ export class CalendarView extends ItemView {
 				this.closeHeaderSelector();
 			}
 		});
+		return Promise.resolve();
 	}
 
-	async onClose(): Promise<void> {
+	onClose(): Promise<void> {
 		if (this.modifyDebounceTimer) clearTimeout(this.modifyDebounceTimer);
+		return Promise.resolve();
 	}
 
 	// Called by the plugin when settings change
@@ -123,22 +125,23 @@ export class CalendarView extends ItemView {
 
 	private renderCalendar() {
 		if (!this.calendarContainer) return;
+		const calendarContainer = this.calendarContainer;
 
-		this.calendarContainer.empty();
+		calendarContainer.empty();
 		const showWeekNumbers = this.plugin.settings.weekNumberDisplay !== 'off';
 		const visibleWeekdays = this.getVisibleWeekdays();
 		const visibleWeekdayCount = visibleWeekdays.length;
-		this.calendarContainer.style.gridTemplateColumns = showWeekNumbers
+		calendarContainer.style.gridTemplateColumns = showWeekNumbers
 			? `auto repeat(${visibleWeekdayCount}, 1fr)`
 			: `repeat(${visibleWeekdayCount}, 1fr)`;
 
 		// Add day labels
 		if (showWeekNumbers) {
-			const weekLabel = this.calendarContainer.createDiv('calendar-week-label');
+			const weekLabel = calendarContainer.createDiv('calendar-week-label');
 			weekLabel.setText(this.getQuarterLabel(this.currentDate));
 		}
 		visibleWeekdays.forEach(({ label }) => {
-			const dayLabel = this.calendarContainer!.createDiv('calendar-day-label');
+			const dayLabel = calendarContainer.createDiv('calendar-day-label');
 			dayLabel.setText(label);
 		});
 
@@ -474,7 +477,10 @@ export class CalendarView extends ItemView {
 	}
 
 	private updateNotesList() {
-		if (!this.notesContainer || (!this.selectedDate && !this.selectedWeekStart)) {
+		const selectedDate = this.selectedDate;
+		const selectedWeekStart = this.selectedWeekStart;
+
+		if (!this.notesContainer || (!selectedDate && !selectedWeekStart)) {
 			if (this.notesContainer) {
 				this.notesContainer.empty();
 				const emptyMsg = this.notesContainer.createDiv('calendar-notes-empty');
@@ -485,16 +491,24 @@ export class CalendarView extends ItemView {
 
 		this.notesContainer.empty();
 
-		const notes = this.selectedWeekStart
-			? this.getNotesForWeek(this.selectedWeekStart)
-			: this.getNotesForDate(this.selectedDate as Date);
+		let notes: TFile[];
+		if (selectedWeekStart) {
+			notes = this.getNotesForWeek(selectedWeekStart);
+		} else if (selectedDate) {
+			notes = this.getNotesForDate(selectedDate);
+		} else {
+			return;
+		}
 
 		if (notes.length === 0) {
 			const emptyMsg = this.notesContainer.createDiv('calendar-notes-empty');
-			emptyMsg.setText(this.selectedWeekStart
-				? `No notes for ${this.getWeekLabel(this.selectedWeekStart)}`
-				: `No notes for ${this.formatDate(this.selectedDate as Date)}`
-			);
+			if (selectedWeekStart) {
+				emptyMsg.setText(`No notes for ${this.getWeekLabel(selectedWeekStart)}`);
+			} else if (selectedDate) {
+				emptyMsg.setText(`No notes for ${this.formatDate(selectedDate)}`);
+			} else {
+				emptyMsg.setText('No notes found');
+			}
 			return;
 		}
 
