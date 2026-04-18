@@ -18,19 +18,33 @@
 	display: none;
 }
 
-.calendar-settings-day-row {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: flex-end;
-	gap: 10px;
+.calendar-days-setting .setting-item-control {
+	width: auto;
+	margin-left: 12px;
 }
 
-.calendar-settings-day-option {
+.calendar-days-checkboxes {
 	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 4px 8px;
+}
+
+.calendar-days-checkbox-option {
+	display: inline-flex;
 	align-items: center;
-	gap: 6px;
+	gap: 4px;
+	font-size: 11px;
+	line-height: 1;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.calendar-days-checkbox-option input[type='checkbox'] {
 	margin: 0;
+	width: 13px;
+	height: 13px;
+	flex: 0 0 13px;
 }
 
 .calendar-main-container button,
@@ -515,6 +529,31 @@ body.is-mobile .calendar-note-name:active {
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
+	.calendar-days-setting {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.calendar-days-setting .setting-item-control {
+		width: 100%;
+		margin-left: 0;
+		margin-top: 6px;
+	}
+
+	.calendar-days-checkboxes {
+		width: 100%;
+		flex-direction: column;
+		align-items: stretch;
+		justify-content: flex-start;
+		gap: 6px;
+	}
+
+	.calendar-days-checkbox-option {
+		width: 100%;
+		font-size: var(--font-size-ui);
+		line-height: 1.2;
+	}
+
 	.calendar-day,
 	.calendar-empty-day {
 		min-height: 30px;

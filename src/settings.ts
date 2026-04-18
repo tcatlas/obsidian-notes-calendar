@@ -298,31 +298,48 @@ export class CalendarSettingTab extends PluginSettingTab {
 		const dayVisibilitySetting = new Setting(containerEl)
 			.setName('Days to show')
 			.setDesc('Choose which weekdays are visible in the calendar.');
+		dayVisibilitySetting.settingEl.addClass('calendar-days-setting');
 		dayVisibilitySetting.controlEl.empty();
-		const dayCheckboxRow = dayVisibilitySetting.controlEl.createDiv({ cls: 'calendar-settings-day-row' });
 
-		const dayOptions: Array<{ key: WeekdayVisibilityKey; label: string }> = [
-			{ key: 'showSunday', label: 'Sun' },
-			{ key: 'showMonday', label: 'Mon' },
-			{ key: 'showTuesday', label: 'Tue' },
-			{ key: 'showWednesday', label: 'Wed' },
-			{ key: 'showThursday', label: 'Thu' },
-			{ key: 'showFriday', label: 'Fri' },
-			{ key: 'showSaturday', label: 'Sat' },
+		const dayOptions: Array<{ key: WeekdayVisibilityKey; label: string; shortLabel: string }> = [
+			{ key: 'showSunday', label: 'Sunday', shortLabel: 'Sun' },
+			{ key: 'showMonday', label: 'Monday', shortLabel: 'Mon' },
+			{ key: 'showTuesday', label: 'Tuesday', shortLabel: 'Tue' },
+			{ key: 'showWednesday', label: 'Wednesday', shortLabel: 'Wed' },
+			{ key: 'showThursday', label: 'Thursday', shortLabel: 'Thu' },
+			{ key: 'showFriday', label: 'Friday', shortLabel: 'Fri' },
+			{ key: 'showSaturday', label: 'Saturday', shortLabel: 'Sat' },
 		];
 
-		dayOptions.forEach(({ key, label }) => {
-			const row = dayCheckboxRow.createEl('label', { cls: 'calendar-settings-day-option' });
-			const checkbox = row.createEl('input', { type: 'checkbox' });
+		const syncDayCheckboxes = (checkboxes: Map<WeekdayVisibilityKey, HTMLInputElement>): void => {
+			dayOptions.forEach(({ key }) => {
+				const checkbox = checkboxes.get(key);
+				if (checkbox) checkbox.checked = this.plugin.settings[key];
+			});
+		};
+
+		const dayCheckboxContainer = dayVisibilitySetting.controlEl.createDiv({ cls: 'calendar-days-checkboxes' });
+		const dayCheckboxes = new Map<WeekdayVisibilityKey, HTMLInputElement>();
+
+		dayOptions.forEach(({ key, label, shortLabel }) => {
+			const option = dayCheckboxContainer.createEl('label', {
+				cls: 'calendar-days-checkbox-option',
+				attr: { 'aria-label': label, title: label },
+			});
+			const checkbox = option.createEl('input', {
+				type: 'checkbox',
+				attr: { 'aria-label': label },
+			});
 			checkbox.checked = this.plugin.settings[key];
-			row.createSpan({ text: label });
+			option.createSpan({ text: shortLabel });
+			dayCheckboxes.set(key, checkbox);
 
 			checkbox.onchange = async () => {
 				this.plugin.settings[key] = checkbox.checked;
 				normalizeWeekdayVisibility(this.plugin.settings);
 				await this.plugin.saveSettings();
 				this.plugin.refreshCalendarView();
-				this.display();
+				syncDayCheckboxes(dayCheckboxes);
 			};
 		});
 
