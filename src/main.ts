@@ -16,8 +16,6 @@ export default class CalendarPlugin extends Plugin {
 	settings!: CalendarPluginSettings;
 
 	async onload(): Promise<void> {
-		console.log('Loading Obsidian Calendar Plugin');
-
 		await this.loadSettings();
 
 		// Register the calendar view
@@ -30,14 +28,14 @@ export default class CalendarPlugin extends Plugin {
 		this.addSettingTab(new CalendarSettingTab(this.app, this));
 
 		// Add a ribbon icon to open the calendar view
-		this.addRibbonIcon('calendar-glyph', 'Open Calendar', async () => {
+		this.addRibbonIcon('calendar-glyph', 'Open calendar', async () => {
 			await this.activateView();
 		});
 
 		// Add a command to open the calendar
 		this.addCommand({
 			id: 'open-calendar',
-			name: 'Open Calendar View',
+			name: 'Open calendar',
 			callback: async () => {
 				await this.activateView();
 			}
@@ -45,12 +43,11 @@ export default class CalendarPlugin extends Plugin {
 
 		// Open the calendar view when the workspace is ready
 		this.app.workspace.onLayoutReady(() => {
-			this.activateView();
+			void this.activateView();
 		});
 	}
 
 	onunload(): void {
-		console.log('Unloading Obsidian Calendar Plugin');
 	}
 
 	async loadSettings(): Promise<void> {

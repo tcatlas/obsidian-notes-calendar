@@ -167,10 +167,9 @@ export class CalendarSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl('h2', { text: 'Notes Calendar Settings' });
-
-		// --- Note List section ---
-		containerEl.createEl('h3', { text: 'Note List' });
+		new Setting(containerEl)
+			.setName('Note list')
+			.setHeading();
 
 		new Setting(containerEl)
 			.setName('Sort notes by')
@@ -209,14 +208,11 @@ export class CalendarSettingTab extends PluginSettingTab {
 					this.plugin.settings.showTime = value;
 					await this.plugin.saveSettings();
 					this.plugin.refreshCalendarView();
-					timeFormatSection.style.display = value ? '' : 'none';
+					this.setSectionVisibility(timeFormatSection, value);
 				})
 			);
 
-		const timeFormatSection = containerEl.createDiv();
-		timeFormatSection.style.marginLeft = '24px';
-		timeFormatSection.style.paddingLeft = '12px';
-		timeFormatSection.style.borderLeft = '1px solid var(--background-modifier-border)';
+		const timeFormatSection = containerEl.createDiv({ cls: 'calendar-settings-nested-section' });
 
 		const timeFormatSetting = new Setting(timeFormatSection)
 			.setName('Time display format')
@@ -231,7 +227,7 @@ export class CalendarSettingTab extends PluginSettingTab {
 					timeFormatSetting.setDesc(this.buildTimeFormatDesc(this.plugin.settings.timeIsoDisplay));
 				})
 			);
-		timeFormatSection.style.display = this.plugin.settings.showTime ? '' : 'none';
+		this.setSectionVisibility(timeFormatSection, this.plugin.settings.showTime);
 
 		new Setting(containerEl)
 			.setName('Show excerpt')
@@ -242,14 +238,11 @@ export class CalendarSettingTab extends PluginSettingTab {
 					this.plugin.settings.showExcerpt = value;
 					await this.plugin.saveSettings();
 					this.plugin.refreshCalendarView();
-					excerptSection.style.display = value ? '' : 'none';
+					this.setSectionVisibility(excerptSection, value);
 				})
 			);
 
-		const excerptSection = containerEl.createDiv();
-		excerptSection.style.marginLeft = '24px';
-		excerptSection.style.paddingLeft = '12px';
-		excerptSection.style.borderLeft = '1px solid var(--background-modifier-border)';
+		const excerptSection = containerEl.createDiv({ cls: 'calendar-settings-nested-section' });
 
 		new Setting(excerptSection)
 			.setName('Excerpt lines')
@@ -267,10 +260,11 @@ export class CalendarSettingTab extends PluginSettingTab {
 					this.plugin.refreshCalendarView();
 				})
 			);
-		excerptSection.style.display = this.plugin.settings.showExcerpt ? '' : 'none';
+		this.setSectionVisibility(excerptSection, this.plugin.settings.showExcerpt);
 
-		// --- Calendar Display section ---
-		containerEl.createEl('h3', { text: 'Calendar Display' });
+		new Setting(containerEl)
+			.setName('Calendar display')
+			.setHeading();
 
 		new Setting(containerEl)
 			.setName('Week starts on')
@@ -305,12 +299,7 @@ export class CalendarSettingTab extends PluginSettingTab {
 			.setName('Days to show')
 			.setDesc('Choose which weekdays are visible in the calendar.');
 		dayVisibilitySetting.controlEl.empty();
-		const dayCheckboxRow = dayVisibilitySetting.controlEl.createDiv();
-		dayCheckboxRow.style.display = 'flex';
-		dayCheckboxRow.style.flexWrap = 'wrap';
-		dayCheckboxRow.style.alignItems = 'center';
-		dayCheckboxRow.style.justifyContent = 'flex-end';
-		dayCheckboxRow.style.gap = '10px';
+		const dayCheckboxRow = dayVisibilitySetting.controlEl.createDiv({ cls: 'calendar-settings-day-row' });
 
 		const dayOptions: Array<{ key: WeekdayVisibilityKey; label: string }> = [
 			{ key: 'showSunday', label: 'Sun' },
@@ -323,9 +312,7 @@ export class CalendarSettingTab extends PluginSettingTab {
 		];
 
 		dayOptions.forEach(({ key, label }) => {
-			const row = dayCheckboxRow.createEl('label', {
-				attr: { style: 'display:flex; align-items:center; gap:6px; margin:0;' },
-			});
+			const row = dayCheckboxRow.createEl('label', { cls: 'calendar-settings-day-option' });
 			const checkbox = row.createEl('input', { type: 'checkbox' });
 			checkbox.checked = this.plugin.settings[key];
 			row.createSpan({ text: label });
@@ -348,16 +335,12 @@ export class CalendarSettingTab extends PluginSettingTab {
 					this.plugin.settings.showDashes = value;
 					await this.plugin.saveSettings();
 					this.plugin.refreshCalendarView();
-					// Show/hide threshold settings based on toggle
-					thresholdSection.style.display = value ? '' : 'none';
+					this.setSectionVisibility(thresholdSection, value);
 				})
 			);
 
-		const thresholdSection = containerEl.createDiv();
-		thresholdSection.style.marginLeft = '24px';
-		thresholdSection.style.paddingLeft = '12px';
-		thresholdSection.style.borderLeft = '1px solid var(--background-modifier-border)';
-		thresholdSection.style.display = this.plugin.settings.showDashes ? '' : 'none';
+		const thresholdSection = containerEl.createDiv({ cls: 'calendar-settings-nested-section' });
+		this.setSectionVisibility(thresholdSection, this.plugin.settings.showDashes);
 
 		thresholdSection.createEl('p', {
 			text: 'Set the minimum number of notes required for each indicator level.',
@@ -365,7 +348,7 @@ export class CalendarSettingTab extends PluginSettingTab {
 		});
 
 		new Setting(thresholdSection)
-			.setName('One')
+			.setName('1 indicator')
 			.addText(text => text
 				.setPlaceholder('1')
 				.setValue(String(this.plugin.settings.dashOneThreshold))
@@ -380,7 +363,7 @@ export class CalendarSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(thresholdSection)
-			.setName('Two')
+			.setName('2 indicators')
 			.addText(text => text
 				.setPlaceholder('3')
 				.setValue(String(this.plugin.settings.dashTwoThreshold))
@@ -395,7 +378,7 @@ export class CalendarSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(thresholdSection)
-			.setName('Three')
+			.setName('3 indicators')
 			.addText(text => text
 				.setPlaceholder('5')
 				.setValue(String(this.plugin.settings.dashThreeThreshold))
@@ -408,6 +391,10 @@ export class CalendarSettingTab extends PluginSettingTab {
 					}
 				})
 			);
+	}
+
+	private setSectionVisibility(section: HTMLElement, visible: boolean): void {
+		section.classList.toggle('is-hidden', !visible);
 	}
 
 	private buildTimeFormatDesc(format: TimeDisplayFormat): string {

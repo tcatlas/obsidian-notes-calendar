@@ -8,6 +8,31 @@
 	font-size: var(--font-size-ui);
 }
 
+.calendar-settings-nested-section {
+	margin-left: 24px;
+	padding-left: 12px;
+	border-left: 1px solid var(--background-modifier-border);
+}
+
+.calendar-settings-nested-section.is-hidden {
+	display: none;
+}
+
+.calendar-settings-day-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 10px;
+}
+
+.calendar-settings-day-option {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+}
+
 .calendar-main-container button,
 .calendar-main-container a,
 .calendar-main-container .calendar-day,
@@ -47,8 +72,33 @@
 	background: var(--background-secondary) !important;
 }
 
-button:not(.clickable-icon) {
-    box-shadow: none;
+.calendar-note-excerpt-lines-1 {
+	line-clamp: 1;
+	-webkit-line-clamp: 1;
+}
+
+.calendar-note-excerpt-lines-2 {
+	line-clamp: 2;
+	-webkit-line-clamp: 2;
+}
+
+.calendar-note-excerpt-lines-3 {
+	line-clamp: 3;
+	-webkit-line-clamp: 3;
+}
+
+.calendar-note-excerpt-lines-4 {
+	line-clamp: 4;
+	-webkit-line-clamp: 4;
+}
+
+.calendar-note-excerpt-lines-5 {
+	line-clamp: 5;
+	-webkit-line-clamp: 5;
+}
+
+.calendar-main-container button:not(.clickable-icon) {
+	box-shadow: none;
 }
 
 /* Header with navigation */

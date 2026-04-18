@@ -56,4 +56,4 @@ Open the Community Plugins tab in the settings and search for "Calendar Notes" (
 
 ## License
 
-GPL 2.0
+GPL-3.0-only

@@ -1,7 +1,7 @@
 {
   "name": "notes-calendar",
   "version": "1.0.0",
-  "description": "A calendar plugin for Obsidian that displays notes for selected dates",
+  "description": "An Obsidian plugin that displays a sidebar calendar and notes created on selected dates or weeks.",
   "main": "main.js",
   "scripts": {
     "build": "npm run production",
@@ -10,9 +10,21 @@
     "lint": "eslint .",
     "production": "node esbuild.config.mjs production"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "calendar"
+  ],
+  "author": "Travis Cochran",
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tcatlas/ObsidianCalendar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tcatlas/ObsidianCalendar/issues"
+  },
+  "homepage": "https://github.com/tcatlas/ObsidianCalendar#readme",
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "@types/node": "^22.0.0",

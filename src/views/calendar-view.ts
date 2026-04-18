@@ -503,7 +503,7 @@ export class CalendarView extends ItemView {
 		notes.forEach(note => {
 			const noteItem = notesList.createDiv('calendar-note-item');
 			noteItem.onclick = () => {
-				this.app.workspace.getLeaf(false).openFile(note);
+				void this.app.workspace.getLeaf(false).openFile(note);
 			};
 
 			// Creation time
@@ -520,24 +520,36 @@ export class CalendarView extends ItemView {
 			// Excerpt — read async and populate when ready
 			if (this.plugin.settings.showExcerpt) {
 				const excerptEl = noteItem.createDiv('calendar-note-excerpt');
-				excerptEl.style.setProperty('line-clamp', String(this.plugin.settings.excerptLines));
-				excerptEl.style.setProperty('-webkit-line-clamp', String(this.plugin.settings.excerptLines));
+				excerptEl.addClass(`calendar-note-excerpt-lines-${this.plugin.settings.excerptLines}`);
 				excerptEl.setText('...');
 				const generation = this.refreshGeneration;
-				this.app.vault.cachedRead(note).then(content => {
-					if (this.refreshGeneration !== generation) return;
-					const text = content
-						.replace(/^---[\s\S]*?---\n?/, '')  // strip frontmatter
-						.replace(/#+\s+.*/g, '')             // strip headings
-						.replace(/[[\]*_`]/g, '')             // strip markdown symbols
-						.replace(/\s+/g, ' ')
-						.trim();
-					excerptEl.setText(text || '—');
-				}).catch(() => {
-					if (this.refreshGeneration === generation) excerptEl.setText('—');
-				});
+				void this.populateExcerpt(note, excerptEl, generation);
 			}
 		});
+	}
+
+	private async populateExcerpt(note: TFile, excerptEl: HTMLElement, generation: number): Promise<void> {
+		try {
+			const content = await this.app.vault.cachedRead(note);
+			if (this.refreshGeneration !== generation) {
+				return;
+			}
+
+			excerptEl.setText(this.createExcerptText(content) || '—');
+		} catch {
+			if (this.refreshGeneration === generation) {
+				excerptEl.setText('—');
+			}
+		}
+	}
+
+	private createExcerptText(content: string): string {
+		return content
+			.replace(/^---[\s\S]*?---\n?/, '')
+			.replace(/#+\s+.*/g, '')
+			.replace(/[\[\]*_`]/g, '')
+			.replace(/\s+/g, ' ')
+			.trim();
 	}
 
 	private getNotesForDate(date: Date): TFile[] {

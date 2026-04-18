@@ -3,7 +3,7 @@
   "name": "Notes Calendar",
   "version": "1.0.0",
   "minAppVersion": "1.4.0",
-  "description": "Displays a sidebar calendar a list of notes created on the selected date or week. Special attention given to iPad trackpad support.",
+  "description": "Displays a sidebar calendar and notes created on the selected date or week, with iPad trackpad support.",
   "author": "Travis Cochran",
   "authorUrl": "https://github.com/tcatlas/",
   "isDesktopOnly": false
