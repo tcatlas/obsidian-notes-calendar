@@ -7,19 +7,21 @@
 npm install
 ```
 
-3. Build in watch mode during development:
+3. Plugin TypeScript source lives under `src/`.
+
+4. Build in watch mode during development:
 
 ```bash
 npm run dev
 ```
 
-4. Copy or symlink this plugin folder into your vault at:
+5. Copy or symlink this plugin folder into your vault at:
 
 ```text
 <your-vault>/.obsidian/plugins/notes-calendar/
 ```
 
-5. In Obsidian, open `Settings -> Community plugins`, enable community plugins if needed, then enable `Notes Calendar`.
+6. In Obsidian, open `Settings -> Community plugins`, enable community plugins if needed, then enable `Notes Calendar`.
 
 ## Build Commands
 

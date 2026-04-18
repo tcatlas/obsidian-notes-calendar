@@ -5,10 +5,10 @@
   "main": "main.js",
   "scripts": {
     "build": "npm run production",
-    "dev": "esbuild main.ts --bundle --format=cjs --external:obsidian --external:@codemirror/autocomplete --outfile=main.js --sourcemap --watch",
-    "esbuild": "esbuild main.ts --bundle --format=cjs --external:obsidian --external:@codemirror/autocomplete --outfile=main.js",
+    "dev": "esbuild src/main.ts --bundle --format=cjs --external:obsidian --external:@codemirror/autocomplete --outfile=main.js --sourcemap --watch",
+    "esbuild": "esbuild src/main.ts --bundle --format=cjs --external:obsidian --external:@codemirror/autocomplete --outfile=main.js",
     "lint": "eslint .",
-    "production": "esbuild main.ts --bundle --format=cjs --external:obsidian --external:@codemirror/autocomplete --outfile=main.js --minify"
+    "production": "esbuild src/main.ts --bundle --format=cjs --external:obsidian --external:@codemirror/autocomplete --outfile=main.js --minify"
   },
   "keywords": [],
   "author": "",
