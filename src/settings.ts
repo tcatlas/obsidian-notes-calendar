@@ -27,6 +27,7 @@ const WEEKDAY_VISIBILITY_KEYS: WeekdayVisibilityKey[] = [
 
 export interface CalendarPluginSettings {
 	showDashes: boolean;
+	enableDailyNoteOnDoubleTap: boolean;
 	dashOneThreshold: number;
 	dashTwoThreshold: number;
 	dashThreeThreshold: number;
@@ -49,6 +50,7 @@ export interface CalendarPluginSettings {
 
 export const DEFAULT_SETTINGS: CalendarPluginSettings = {
 	showDashes: true,
+	enableDailyNoteOnDoubleTap: true,
 	dashOneThreshold: 1,
 	dashTwoThreshold: 3,
 	dashThreeThreshold: 5,
@@ -406,6 +408,16 @@ export class CalendarSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 						this.plugin.refreshCalendarView();
 					}
+				})
+			);
+		new Setting(containerEl)
+			.setName('Create daily note on double-click/tap')
+			.setDesc('When enabled, double-clicking or double-tapping a date creates or opens that day\'s daily note. The Daily Notes core plugin is required.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.enableDailyNoteOnDoubleTap)
+				.onChange(async (value) => {
+					this.plugin.settings.enableDailyNoteOnDoubleTap = value;
+					await this.plugin.saveSettings();
 				})
 			);
 	}

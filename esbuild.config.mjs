@@ -1,7 +1,7 @@
 import esbuild from "esbuild";
 import process from "process";
 import { copyFileSync, mkdirSync, watch as fsWatch } from "fs";
-import builtinModules from "builtin-modules";
+import { builtinModules } from "node:module";
 
 const banner =
 `/*

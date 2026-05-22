@@ -51,7 +51,10 @@ export default class CalendarPlugin extends Plugin {
 	}
 
 	async loadSettings(): Promise<void> {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		const loadedData = await this.loadData();
+		const parsedData = (loadedData ?? {}) as Partial<CalendarPluginSettings>;
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, parsedData);
+		this.settings.enableDailyNoteOnDoubleTap = this.settings.enableDailyNoteOnDoubleTap !== false;
 		this.settings.timeIsoDisplay = normalizeTimeDisplayFormat(this.settings.timeIsoDisplay ?? '');
 		this.settings.excerptLines = normalizeExcerptLines(this.settings.excerptLines ?? DEFAULT_SETTINGS.excerptLines);
 		this.settings.noteSortBy = normalizeNoteSortBy(this.settings.noteSortBy ?? '');
@@ -92,7 +95,7 @@ export default class CalendarPlugin extends Plugin {
 
 			// Reveal the leaf
 			if (leaf) {
-				await workspace.revealLeaf(leaf);
+				workspace.setActiveLeaf(leaf, { focus: false });
 			}
 		} catch (error) {
 			console.error('Failed to activate calendar view:', error);

@@ -1,8 +1,37 @@
-import { WorkspaceLeaf, ItemView, TFile, setIcon } from 'obsidian';
+import { WorkspaceLeaf, ItemView, Notice, TFile, TFolder, moment, normalizePath, setIcon } from 'obsidian';
 import type CalendarPlugin from '../main';
 import { formatDateTime } from '../settings';
 
 export const VIEW_TYPE_CALENDAR = 'calendar-view';
+
+interface DailyNotesCoreSettings {
+	folder: string;
+	format: string;
+	template: string;
+}
+
+interface DailyNotesCoreOptionsLike {
+	folder?: unknown;
+	format?: unknown;
+	template?: unknown;
+	templatePath?: unknown;
+	template_file?: unknown;
+	templateFile?: unknown;
+}
+
+interface DailyNotesCorePlugin {
+	enabled?: boolean;
+	instance?: {
+		options?: Partial<DailyNotesCoreSettings>;
+	};
+}
+
+interface AppWithInternalPlugins {
+	internalPlugins?: {
+		getPluginById?: (id: string) => DailyNotesCorePlugin | undefined;
+		plugins?: Record<string, DailyNotesCorePlugin | undefined>;
+	};
+}
 
 export class CalendarView extends ItemView {
 	private plugin: CalendarPlugin;
@@ -19,6 +48,8 @@ export class CalendarView extends ItemView {
 	private yearSelectorCenter: number;
 	private modifyDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 	private refreshGeneration = 0;
+	private lastTouchTapDateKey: string | null = null;
+	private lastTouchTapTimestamp = 0;
 
 	constructor(leaf: WorkspaceLeaf, plugin: CalendarPlugin) {
 		super(leaf);
@@ -42,15 +73,17 @@ export class CalendarView extends ItemView {
 
 	onOpen(): Promise<void> {
 		this.createCalendarView();
+		const activeWindow = window.activeWindow ?? window;
+		const activeDocument = window.activeDocument ?? document;
 		// registerEvent automatically detaches listeners when the view is closed
 		this.registerEvent(this.app.vault.on('create', () => this.refresh()));
 		this.registerEvent(this.app.vault.on('delete', () => this.refresh()));
 		this.registerEvent(this.app.vault.on('rename', () => this.refresh()));
 		this.registerEvent(this.app.vault.on('modify', () => {
-			if (this.modifyDebounceTimer) clearTimeout(this.modifyDebounceTimer);
-			this.modifyDebounceTimer = setTimeout(() => this.refresh(), 400);
+			if (this.modifyDebounceTimer) activeWindow.clearTimeout(this.modifyDebounceTimer);
+			this.modifyDebounceTimer = activeWindow.setTimeout(() => this.refresh(), 400);
 		}));
-		this.registerDomEvent(document, 'click', (event) => {
+		this.registerDomEvent(activeDocument, 'click', (event) => {
 			if (!this.activeHeaderSelector || !this.monthDisplayContainer) return;
 			if (!this.monthDisplayContainer.contains(event.target as Node)) {
 				this.closeHeaderSelector();
@@ -60,7 +93,7 @@ export class CalendarView extends ItemView {
 	}
 
 	onClose(): Promise<void> {
-		if (this.modifyDebounceTimer) clearTimeout(this.modifyDebounceTimer);
+		if (this.modifyDebounceTimer) (window.activeWindow ?? window).clearTimeout(this.modifyDebounceTimer);
 		return Promise.resolve();
 	}
 
@@ -194,6 +227,11 @@ export class CalendarView extends ItemView {
 				}
 
 				dayCell.onclick = () => this.selectDate(date);
+				dayCell.ondblclick = (event) => {
+					event.preventDefault();
+					void this.openOrCreateDailyNoteForDate(date);
+				};
+				dayCell.onpointerup = (event) => this.handleDayTouch(event, date);
 
 				if (this.selectedWeekStart && this.isDateInWeek(date, this.selectedWeekStart)) {
 					dayCell.addClass('calendar-day-in-selected-week');
@@ -682,5 +720,196 @@ export class CalendarView extends ItemView {
 	private getMonthNames(): string[] {
 		return ['January', 'February', 'March', 'April', 'May', 'June',
 			'July', 'August', 'September', 'October', 'November', 'December'];
+	}
+
+	private handleDayTouch(event: PointerEvent, date: Date): void {
+		if (event.pointerType !== 'touch') {
+			return;
+		}
+
+		const currentTapDateKey = this.formatDate(date);
+		const now = Date.now();
+		const isDoubleTap = this.lastTouchTapDateKey === currentTapDateKey && (now - this.lastTouchTapTimestamp) <= 350;
+
+		this.lastTouchTapDateKey = currentTapDateKey;
+		this.lastTouchTapTimestamp = now;
+
+		if (!isDoubleTap) {
+			return;
+		}
+
+		this.lastTouchTapDateKey = null;
+		this.lastTouchTapTimestamp = 0;
+		void this.openOrCreateDailyNoteForDate(date);
+	}
+
+	private async openOrCreateDailyNoteForDate(date: Date): Promise<void> {
+		if (!this.plugin.settings.enableDailyNoteOnDoubleTap) {
+			return;
+		}
+
+		const dailyNotesSettings = this.getDailyNotesCoreSettings();
+		if (!dailyNotesSettings.enabled) {
+			new Notice('Enable the Daily notes core plugin to create daily notes from the calendar.');
+			return;
+		}
+
+		const fileName = `${this.formatWithMoment(date, dailyNotesSettings.format)}.md`;
+		const notePath = normalizePath(
+			dailyNotesSettings.folder ? `${dailyNotesSettings.folder}/${fileName}` : fileName
+		);
+
+		try {
+			const existingFile = this.app.vault.getAbstractFileByPath(notePath);
+			if (existingFile instanceof TFile) {
+				await this.app.workspace.getLeaf(false).openFile(existingFile);
+				return;
+			}
+
+			if (existingFile) {
+				new Notice(`Unable to create daily note. A folder exists at ${notePath}.`);
+				return;
+			}
+
+			await this.ensureParentFolderExists(notePath);
+			const templateContent = await this.readDailyNoteTemplate(dailyNotesSettings.template);
+			const renderedTemplate = this.renderCoreTemplate(
+				templateContent,
+				date,
+				fileName.replace(/\.md$/i, ''),
+				dailyNotesSettings.format
+			);
+			const timestamp = this.getDailyNoteTimestamp(date);
+			const createdFile = await this.app.vault.create(notePath, renderedTemplate, {
+				ctime: timestamp,
+				mtime: timestamp,
+			});
+			await this.app.workspace.getLeaf(false).openFile(createdFile);
+		} catch (error) {
+			console.error('Failed to create daily note from calendar:', error);
+			new Notice(`Could not create daily note for ${this.formatDate(date)}.`);
+		}
+	}
+
+	private getDailyNotesCoreSettings(): DailyNotesCoreSettings & { enabled: boolean } {
+		const appWithInternalPlugins = this.app as unknown as AppWithInternalPlugins;
+		const plugin = appWithInternalPlugins.internalPlugins?.getPluginById?.('daily-notes')
+			?? appWithInternalPlugins.internalPlugins?.plugins?.['daily-notes'];
+		const instanceCandidate = plugin?.instance as unknown;
+		const optionsCandidate = (plugin?.instance?.options ?? instanceCandidate ?? {}) as DailyNotesCoreOptionsLike;
+
+		const folder = this.readDailyNotesOption(optionsCandidate.folder);
+		const format = this.readDailyNotesOption(optionsCandidate.format).length > 0
+			? this.readDailyNotesOption(optionsCandidate.format)
+			: 'YYYY-MM-DD';
+		const template = this.readDailyNotesOption(optionsCandidate.template)
+			|| this.readDailyNotesOption(optionsCandidate.templatePath)
+			|| this.readDailyNotesOption(optionsCandidate.template_file)
+			|| this.readDailyNotesOption(optionsCandidate.templateFile);
+
+		return {
+			enabled: plugin?.enabled === true,
+			folder,
+			format,
+			template,
+		};
+	}
+
+	private async ensureParentFolderExists(filePath: string): Promise<void> {
+		const segments = filePath.split('/');
+		if (segments.length <= 1) {
+			return;
+		}
+
+		segments.pop();
+		let currentPath = '';
+		for (const segment of segments) {
+			currentPath = currentPath ? `${currentPath}/${segment}` : segment;
+			const existing = this.app.vault.getAbstractFileByPath(currentPath);
+			if (!existing) {
+				await this.app.vault.createFolder(currentPath);
+				continue;
+			}
+
+			if (!(existing instanceof TFolder)) {
+				throw new Error(`Cannot create folder ${currentPath} because a file already exists at this path.`);
+			}
+		}
+	}
+
+	private async readDailyNoteTemplate(templatePath: string): Promise<string> {
+		if (!templatePath) {
+			return '';
+		}
+
+		const templateFile = this.resolveDailyTemplateFile(templatePath);
+		if (!templateFile) return '';
+
+		try {
+			return await this.app.vault.cachedRead(templateFile);
+		} catch {
+			return '';
+		}
+	}
+
+	private resolveDailyTemplateFile(templatePath: string): TFile | null {
+		const trimmed = templatePath.trim();
+		if (!trimmed) return null;
+
+		const candidates = new Set<string>();
+		candidates.add(normalizePath(trimmed));
+		candidates.add(normalizePath(trimmed.replace(/^\/+/, '')));
+		if (!/\.md$/i.test(trimmed)) {
+			candidates.add(normalizePath(`${trimmed}.md`));
+			candidates.add(normalizePath(`${trimmed.replace(/^\/+/, '')}.md`));
+		}
+
+		for (const candidate of candidates) {
+			const file = this.app.vault.getAbstractFileByPath(candidate);
+			if (file instanceof TFile) {
+				return file;
+			}
+		}
+
+		const wantedPath = normalizePath(trimmed).replace(/\.md$/i, '').toLowerCase();
+		return this.app.vault.getMarkdownFiles().find((file) => {
+			const filePathNoExtension = file.path.replace(/\.md$/i, '').toLowerCase();
+			return filePathNoExtension === wantedPath || file.basename.toLowerCase() === wantedPath;
+		}) ?? null;
+	}
+
+	private renderCoreTemplate(template: string, date: Date, title: string, dateFormat: string): string {
+		if (!template) {
+			return '';
+		}
+
+		return template.replace(/{{\s*(date|time|title)(?::([^}]+))?\s*}}/gi, (_match, token: string, format: string) => {
+			const normalizedToken = token.toLowerCase();
+			if (normalizedToken === 'title') {
+				return title;
+			}
+
+			const tokenFormat = (format ?? '').trim();
+			if (normalizedToken === 'date') {
+				return this.formatWithMoment(date, tokenFormat || dateFormat || 'YYYY-MM-DD');
+			}
+
+			const timeSource = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+			return this.formatWithMoment(timeSource, tokenFormat || 'HH:mm');
+		});
+	}
+
+	private readDailyNotesOption(value: unknown): string {
+		return typeof value === 'string' ? value.trim() : '';
+	}
+
+	private formatWithMoment(date: Date, format: string): string {
+		const momentFormatter = moment as unknown as (input?: Date) => { format: (pattern: string) => string };
+		return momentFormatter(date).format(format);
+	}
+
+	private getDailyNoteTimestamp(date: Date): number {
+		// Use midday local time to avoid DST edge cases around midnight.
+		return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0).getTime();
 	}
 }

@@ -17,6 +17,7 @@ An Obsidian plugin for displaying a calendar in the side pane and notes associat
 - Hide unnecessary days from the calendar
 - Optional creation time and note excerpt display
 - Configurable note sorting and excerpt line count
+- Double-clicking or tapping a date can optionally (enabled by default) create a Daily Note on that date, using the Daily Notes core plugin for templating.
 - Special attention taken for iPad trackpad support
 
 ## Installation
