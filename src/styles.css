@@ -52,38 +52,38 @@
 .calendar-main-container .calendar-day,
 .calendar-main-container .calendar-note-item,
 .calendar-main-container .calendar-week-number {
-	-webkit-tap-highlight-color: transparent !important;
+	-webkit-tap-highlight-color: transparent;
 }
 
 .calendar-main-container button {
-	-webkit-appearance: none !important;
-	appearance: none !important;
-	background: none !important;
-	border: none !important;
+	-webkit-appearance: none;
+	appearance: none;
+	background: none;
+	border: none;
 	color: inherit;
 	padding: 0;
 	margin: 0;
 	font: inherit;
 }
 
-.calendar-nav-button:active {
-	background: var(--background-tertiary) !important;
+.calendar-main-container .calendar-nav-button:active {
+	background: var(--background-tertiary);
 }
 
-.calendar-month-display-button:active {
-	background: var(--background-secondary) !important;
+.calendar-main-container .calendar-month-display-button:active {
+	background: var(--background-secondary);
 }
 
-.calendar-header-selector-option:active {
-	background: var(--background-modifier-hover) !important;
+.calendar-main-container .calendar-header-selector-option:active {
+	background: var(--background-modifier-hover);
 }
 
-.calendar-day:active:not(.calendar-day-selected) {
-	background: var(--background-secondary) !important;
+.calendar-main-container .calendar-day:active:not(.calendar-day-selected) {
+	background: var(--background-secondary);
 }
 
-.calendar-note-item:active {
-	background: var(--background-secondary) !important;
+.calendar-main-container .calendar-note-item:active {
+	background: var(--background-secondary);
 }
 
 .calendar-note-excerpt-lines-1 {
@@ -460,8 +460,8 @@
 }
 
 @media (any-hover: hover) {
-	body.is-mobile .calendar-note-item:hover {
-		background: var(--background-modifier-hover) !important;
+	body.is-mobile .calendar-main-container .calendar-note-item:hover {
+		background: var(--background-modifier-hover);
 	}
 }
 
@@ -480,12 +480,12 @@
 	color: var(--text-accent);
 }
 
-body.is-mobile .calendar-note-name,
-body.is-mobile .calendar-note-name:hover,
-body.is-mobile .calendar-note-name:focus,
-body.is-mobile .calendar-note-name:active {
-	color: var(--text-accent) !important;
-	text-decoration: none !important;
+body.is-mobile .calendar-main-container .calendar-note-name,
+body.is-mobile .calendar-main-container .calendar-note-name:hover,
+body.is-mobile .calendar-main-container .calendar-note-name:focus,
+body.is-mobile .calendar-main-container .calendar-note-name:active {
+	color: var(--text-accent);
+	text-decoration: none;
 }
 
 .calendar-note-time {
@@ -566,37 +566,37 @@ body.is-mobile .calendar-note-name:active {
 }
 
 /* Mobile overrides — Obsidian adds .is-mobile on iOS/Android */
-body.is-mobile .calendar-day,
-body.is-mobile .calendar-empty-day {
-	background: transparent !important;
-	box-shadow: none !important;
+body.is-mobile .calendar-main-container .calendar-day,
+body.is-mobile .calendar-main-container .calendar-empty-day {
+	background: transparent;
+	box-shadow: none;
 }
 
-body.is-mobile .calendar-day-selected {
-	background: var(--interactive-accent) !important;
-	border-color: var(--interactive-accent) !important;
+body.is-mobile .calendar-main-container .calendar-day-selected {
+	background: var(--interactive-accent);
+	border-color: var(--interactive-accent);
 }
 
-body.is-mobile .calendar-day-in-selected-week {
-	border-color: var(--interactive-accent-hover) !important;
-	background: color-mix(in srgb, var(--interactive-accent) 12%, transparent) !important;
+body.is-mobile .calendar-main-container .calendar-day-in-selected-week {
+	border-color: var(--interactive-accent-hover);
+	background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
 }
 
-body.is-mobile .calendar-note-item {
-	background: transparent !important;
-	box-shadow: none !important;
+body.is-mobile .calendar-main-container .calendar-note-item {
+	background: transparent;
+	box-shadow: none;
 }
 
-body.is-mobile .calendar-note-item:active {
-	background: var(--background-secondary) !important;
+body.is-mobile .calendar-main-container .calendar-note-item:active {
+	background: var(--background-secondary);
 }
 
-body.is-mobile .calendar-month-display {
-	gap: 1px !important;
+body.is-mobile .calendar-main-container .calendar-month-display {
+	gap: 1px;
 }
 
-body.is-mobile .calendar-month-display-button {
+body.is-mobile .calendar-main-container .calendar-month-display-button {
 	padding: 2px 3px;
-	margin: 0 !important;
-	min-width: 0 !important;
+	margin: 0;
+	min-width: 0;
 }
