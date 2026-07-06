@@ -1,4 +1,4 @@
-import { WorkspaceLeaf, ItemView, Notice, TFile, TFolder, moment, normalizePath, setIcon } from 'obsidian';
+import { WorkspaceLeaf, ItemView, Notice, TFile, TFolder, getAllTags, moment, normalizePath, setIcon } from 'obsidian';
 import type CalendarPlugin from '../main';
 import { formatDateTime } from '../settings';
 
@@ -577,6 +577,25 @@ export class CalendarView extends ItemView {
 				const generation = this.refreshGeneration;
 				void this.populateExcerpt(note, excerptEl, generation);
 			}
+
+			// Tags
+			if (this.plugin.settings.showTags) {
+				this.renderNoteTags(note, noteItem);
+			}
+		});
+	}
+
+	private renderNoteTags(note: TFile, noteItem: HTMLElement): void {
+		const cache = this.app.metadataCache.getFileCache(note);
+		const tags = cache ? getAllTags(cache) : null;
+		if (!tags || tags.length === 0) {
+			return;
+		}
+
+		const uniqueTags = Array.from(new Set(tags));
+		const tagsEl = noteItem.createDiv('calendar-note-tags');
+		uniqueTags.forEach(tag => {
+			tagsEl.createSpan({ cls: 'calendar-note-tag', text: tag });
 		});
 	}
 
