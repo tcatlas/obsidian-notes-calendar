@@ -509,6 +509,23 @@ body.is-mobile .calendar-main-container .calendar-note-name:active {
 	-webkit-box-orient: vertical;
 	line-height: 1.4;
 }
+.calendar-note-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-top: 5px;
+}
+
+.calendar-note-tag {
+	font-size: 10px;
+	line-height: 1.4;
+	color: var(--text-accent);
+	background: var(--background-modifier-hover);
+	border-radius: 8px;
+	padding: 1px 7px;
+	white-space: nowrap;
+}
+
 /* Scrollbar styling */
 .calendar-notes-container::-webkit-scrollbar {
 	width: 6px;

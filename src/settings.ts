@@ -35,6 +35,7 @@ export interface CalendarPluginSettings {
 	timeIsoDisplay: TimeDisplayFormat;
 	showExcerpt: boolean;
 	excerptLines: number;
+	showTags: boolean;
 	noteSortBy: NoteSortBy;
 	noteSortOrder: SortOrder;
 	weekStartDay: WeekStartDay;
@@ -58,6 +59,7 @@ export const DEFAULT_SETTINGS: CalendarPluginSettings = {
 	timeIsoDisplay: 'HH:mm:ss',
 	showExcerpt: true,
 	excerptLines: 2,
+	showTags: true,
 	noteSortBy: 'creation-time',
 	noteSortOrder: 'ascending',
 	weekStartDay: 'sunday',
@@ -263,6 +265,18 @@ export class CalendarSettingTab extends PluginSettingTab {
 				})
 			);
 		this.setSectionVisibility(excerptSection, this.plugin.settings.showExcerpt);
+
+		new Setting(containerEl)
+			.setName('Show tags')
+			.setDesc('Display each note\'s tags in the note list.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.showTags)
+				.onChange(async (value) => {
+					this.plugin.settings.showTags = value;
+					await this.plugin.saveSettings();
+					this.plugin.refreshCalendarView();
+				})
+			);
 
 		new Setting(containerEl)
 			.setName('Calendar display')
